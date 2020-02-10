@@ -9,10 +9,21 @@ func adder(x) {
 	return \(y) -> sum(x, y);
 }
 
+func diff(x, y) {
+	return x - y;
+}
+
+func subtracter(x) {
+	return \(y) -> diff(x, y);
+}
+
 func main() {
 	x <- input_int();
 	y <- input_int();
 	f <- adder(x);
+	g <- subtracter(x);
 	s <- f(y);
+	d <- g(y);
 	print_int(s);
+	print_int(d);
 }
