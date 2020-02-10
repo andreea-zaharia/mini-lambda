@@ -47,6 +47,9 @@ let compile_closure out { id; num_params; num_locals; name; insts; _ } =
     | ConstInt i ->
       Printf.fprintf out "\tldr r1, =%d\n" i;
       Printf.fprintf out "\tpush {r1}\n"
+    | ConstBool i ->
+      Printf.fprintf out "\tldr r1, =%d\n" (if i then 1 else 0);
+      Printf.fprintf out "\tpush {r1}\n"
     | Closure(i, num_capture) ->
       let size = num_capture * 4 + 4 in
       Printf.fprintf out "\tmov r1, #%d\n" num_capture;
@@ -68,6 +71,34 @@ let compile_closure out { id; num_params; num_locals; name; insts; _ } =
       Printf.fprintf out "\tpop {r2}\n";
       Printf.fprintf out "\tsub r1, r1, r2\n";
       Printf.fprintf out "\tpush {r1}\n";
+    | Eq ->
+       Printf.fprintf out "\tpop {r1}\n";
+       Printf.fprintf out "\tpop {r2}\n";
+       Printf.fprintf out "\tcmp r1, r2\n";
+       Printf.fprintf out "\tmoveq r1, #1\n";
+       Printf.fprintf out "\tmovne r1, #0\n";
+       Printf.fprintf out "\tpush {r1}\n";
+    | NotEq ->
+       Printf.fprintf out "\tpop {r1}\n";
+       Printf.fprintf out "\tpop {r2}\n";
+       Printf.fprintf out "\tcmp r1, r2\n";
+       Printf.fprintf out "\tmoveq r1, #0\n";
+       Printf.fprintf out "\tmovne r1, #1\n";
+       Printf.fprintf out "\tpush {r1}\n";
+    | And ->
+       Printf.fprintf out "\tpop {r1}\n";
+       Printf.fprintf out "\tpop {r2}\n";
+       Printf.fprintf out "\tcmp r1, #0\n";
+       Printf.fprintf out "\tcmpne r2, #0\n";
+       Printf.fprintf out "\tmovne r1, #1\n";
+       Printf.fprintf out "\tpush {r1}\n";
+    | Or ->
+       Printf.fprintf out "\tpop {r1}\n";
+       Printf.fprintf out "\tpop {r2}\n";
+       Printf.fprintf out "\torr r1, r1, r2\n";
+       Printf.fprintf out "\tcmp r1, #0\n";
+       Printf.fprintf out "\tmovne r1, #1\n";
+       Printf.fprintf out "\tpush {r1}\n";
     | Call ->
       Printf.fprintf out "\tpop {r0}\n";
       Printf.fprintf out "\tldr r1, [r0]\n";
